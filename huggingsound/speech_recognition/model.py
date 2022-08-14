@@ -11,6 +11,7 @@ from transformers import (
     Wav2Vec2Processor, 
     AutoModelForCTC
 )
+from jiwer import wer as wer2,cer as cer2
 from huggingsound.utils import get_chunks, get_waveforms, get_dataset_from_dict_list
 from huggingsound.token_set import TokenSet
 from huggingsound.normalizer import DefaultTextNormalizer
@@ -120,7 +121,7 @@ class SpeechRecognitionModel():
         return result 
 
     def evaluate(self, references: list[dict], predictions: Optional[list[dict]] = None, metrics_batch_size: Optional[int] = None, 
-                 inference_batch_size: Optional[int] = 1, decoder: Optional[Decoder] = None, text_normalizer: Callable[[str], str] = None) -> dict:
+                 inference_batch_size: Optional[int] = 1, decoder: Optional[Decoder] = None, text_normalizer: Callable[[str], str] = None) -> list:
         """ 
         Evaluate the model.
 
@@ -191,8 +192,9 @@ class SpeechRecognitionModel():
             "cer": cer(predictions=predicted_transcriptions, references=reference_transcriptions, chunk_size=metrics_batch_size),
             "wer": wer(predictions=predicted_transcriptions, references=reference_transcriptions, chunk_size=metrics_batch_size)
         }
-
-        return evaluation
+        print(evaluation)
+        result = [[true, pred, cer2(true, pred), wer2(true, pred)] for true,pred in zip(reference_transcriptions, predicted_transcriptions)]
+        return result
 
     def _prepare_dataset_for_finetuning(self, dataset: Dataset, processor: Wav2Vec2Processor, text_normalizer: Callable[[str], str],
                                         length_column_name: str, num_workers: int) -> Dataset:

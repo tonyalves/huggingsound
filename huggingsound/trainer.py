@@ -259,7 +259,7 @@ class TrainingArguments:
     show_dataset_stats: bool = field(default=True)
     early_stopping_patience: int = field(default=None)
     load_best_model_at_end: bool = field(default=False)
-
+    push_to_hub: bool = field(default=False)
 class CTCDataCollatorWithPadding:
     """
     Data collator that will dynamically pad the inputs received.
@@ -675,3 +675,15 @@ def finetune_ctc(model_name_or_path: str, output_dir: str, processor: Wav2Vec2Pr
     trainer.log_metrics("train", metrics)
     trainer.save_metrics("train", metrics)
     trainer.save_state()
+
+    # Write model card and (optionally) push to hub
+    kwargs = {
+        "finetuned_from": model_name_or_path,
+        "tasks": "speech-recognition",
+        "tags": ["automatic-speech-recognition"]
+    }
+    
+    if training_args.push_to_hub:
+        trainer.push_to_hub(**kwargs)
+    else:
+        trainer.create_model_card(**kwargs)
