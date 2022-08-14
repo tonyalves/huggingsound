@@ -104,6 +104,8 @@ model = SpeechRecognitionModel("facebook/wav2vec2-large-xlsr-53")
 output_dir = "my/finetuned/model/output/dir"
 
 # first of all, you need to define your model's token set
+# however, the token set is only needed for non-finetuned models
+# if you pass a new token set for an already finetuned model, it'll be ignored during training
 tokens = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "'"]
 token_set = TokenSet(tokens)
 
@@ -122,7 +124,7 @@ model.finetune(
     output_dir, 
     train_data=train_data, 
     eval_data=eval_data, # the eval_data is optional
-    token_set=token_set, 
+    token_set=token_set,
 )
 
 ```
@@ -149,10 +151,8 @@ If you want to cite the tool you can use this:
 
 ```bibtex
 @misc{grosman2022huggingsound,
-  title={HuggingSound},
+  title={{HuggingSound: A toolkit for speech-related tasks based on Hugging Face's tools}},
   author={Grosman, Jonatas},
-  publisher={GitHub},
-  journal={GitHub repository},
   howpublished={\url{https://github.com/jonatasgrosman/huggingsound}},
   year={2022}
 }
